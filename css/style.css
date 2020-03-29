@@ -1,0 +1,15 @@
+* {
+  box-sizing: border-box;
+  margin: 0; }
+
+.box1 {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  grid-template-rows: 100px 100px 100px; }
+  .box1 .text {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 3; }
+
+/*# sourceMappingURL=style.css.map */
