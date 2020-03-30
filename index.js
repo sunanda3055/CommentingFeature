@@ -75,6 +75,7 @@
             // Other
             'click li.comment ul.child-comments .toggle-all': 'toggleReplies',
             'click li.comment button.reply': 'replyButtonClicked',
+            'click li.comment div.dropdown.actions button': 'actionButtonClicked',
             'click li.comment button.edit': 'editButtonClicked',
 
             //accordion
@@ -104,7 +105,7 @@
                 noCommentsIconURL: '',
 
                 // Strings to be formatted (for example localization)
-                textareaPlaceholderText: 'Add a comment',
+                textareaPlaceholderText: 'Add a file',
                 sendText: 'Send',
                 replyText: 'Reply',
                 editText: 'Edit',
@@ -255,7 +256,7 @@
             // ========
 
             this.options.getComments(function(commentsArray) {
-
+                console.log('commentsArray----->', commentsArray);
                 // Convert comments to custom data model
                 var commentModels = commentsArray.map(function(commentsJSON){
                     return self.createCommentModel(commentsJSON)
@@ -762,6 +763,13 @@
             this.setToggleAllButtonText(el, true);
         },
 
+        actionButtonClicked: function(ev) {
+            //dropdown-menu
+            var actionButton = $(ev.currentTarget);
+            var currentEl = actionButton.parents('.dropdown.actions').find('.dropdown-menu');
+            currentEl.toggle();
+        },
+
         replyButtonClicked: function(ev) {
             var replyButton = $(ev.currentTarget);
             var outermostParent = replyButton.parents('li.comment').last();
@@ -864,11 +872,12 @@
         },
 
         createProfilePictureElement: function(src, userId) {
-            if(src) {
-                var profilePicture = $('<div/>').css({
-                    'background-image': 'url(' + src + ')'
-                });
-            } else {
+            // if(src) {
+            //     var profilePicture = $('<div/>').css({
+            //         'background-image': 'url(' + src + ')'
+            //     });
+            // } else
+                {
                 var profilePicture = $('<i/>', {
                     'class': 'fa fa-user'
                 });
@@ -991,7 +1000,7 @@
                         // Return empty array on error
                         var error = function() {
                             callback([]);
-                        }
+                        };
 
                         self.options.searchUsers(term, callback, error);
                     },
@@ -1041,7 +1050,14 @@
 
         createCommentElement: function(commentModel) {
             // Comment container element
-            var sibElement = $('<div class="file-title">File Name</div>');
+            var sibElement = $('<div/>', {
+                'class': 'file-title'
+            });
+            var addComment = $('<button/>', {
+                'class': 'action reply add-comment',
+                'type': 'button',
+                text: '+'
+            });
             var wrapperDiv = $('<div/>', {
                 'class': 'issue-container'
             });
@@ -1062,8 +1078,10 @@
             var commentWrapper = this.createCommentWrapperElement(commentModel);
 
             if(commentModel.parent == null) {
+                sibElement.append(addComment);
+                sibElement.append(commentWrapper);
                 commentEl.append(sibElement);
-                wrapperDiv.append(commentWrapper);
+                // wrapperDiv.append(commentWrapper);
                 wrapperDiv.append(childComments);
                 commentEl.append(wrapperDiv);
             } else {
@@ -1103,6 +1121,14 @@
                 'class': 'name',
                 'html': name
             });
+
+            //comment body container
+            var contentContainer = $('<div/>', {
+                'class': 'comment-content'
+            });
+
+            //wrapper for time
+            var divWrap = $('<div/>');
 
             // Highlight admin names
             if(commentModel.createdByAdmin) nameEl.addClass('highlight-font-bold');
@@ -1153,20 +1179,25 @@
                 content.append(edited);
             }
 
-            // Actions
-            var actions = $('<span/>', {
-                'class': 'actions'
-            });
+            //contains action button in dropdown
+            var actionMenu = $('<div class="dropdown actions">\n' +
+                '        <button\n' +
+                '          class="btn"\n' +
+                '          type="button"\n' +
+                '          id="dropdownMenuLink"\n' +
+                '          data-toggle="dropdown"\n' +
+                '          aria-haspopup="true"\n' +
+                '          aria-expanded="false">\n' +
+                '          <span class="three-dots">.</span><span class="three-dots">.</span><span class="three-dots">.</span>' +
+                '        </button>\n' +
+                '</div>');
 
-            // Separator
-            var separator = $('<span/>', {
-                'class': 'separator',
-                text: '·'
-            });
+            var actions = $('<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">');
+            actionMenu.append(actions);
 
             // Reply
             var reply = $('<button/>', {
-                'class': 'action reply',
+                'class': 'action reply dropdown-item',
                 'type': 'button',
                 text: this.options.textFormatter(this.options.replyText)
             });
@@ -1177,24 +1208,20 @@
             if(commentModel.createdByCurrentUser || this.options.currentUserIsAdmin) {
                 if(this.options.enableEditing) {
                     var editButton = $('<button/>', {
-                        'class': 'action edit',
+                        'class': 'action edit dropdown-item',
                         text: this.options.textFormatter(this.options.editText)
                     });
                     actions.append(editButton);
                 }
             }
-
-            // Append separators between the actions
-            actions.children().each(function(index, actionEl) {
-                if(!$(actionEl).is(':last-child')) {
-                    $(actionEl).after(separator.clone());
-                }
-            });
-
+            nameEl.append(divWrap.append(time));
             wrapper.append(content);
-            wrapper.append(actions);
-            commentWrapper.append(profilePicture).append(time).append(nameEl).append(wrapper);
-            return commentWrapper;
+            contentContainer.append(nameEl).append(actionMenu).append(wrapper);
+            commentWrapper.append(profilePicture).append(contentContainer);
+            if(commentModel.parent == null) {
+                return content;
+            } else
+                return commentWrapper;
         },
 
         createTagElement: function(text, extraClasses, value, extraAttributes) {
@@ -1492,7 +1519,7 @@
                 var __createTag = function(tag) {
                     var tag = self.createTagElement('#' + tag, 'hashtag', tag);
                     return tag[0].outerHTML;
-                }
+                };
 
                 var regex = /(^|\s)#([a-zäöüß\d-_]+)/gim;
                 html = html.replace(regex, function($0, $1, $2){

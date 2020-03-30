@@ -422,7 +422,7 @@
 
 .jquery-comments ul.main li.comment .comment-wrapper {
   border-top: 1px solid #DDD;
-  overflow: hidden;
+  //overflow: hidden;
 }
 
 .jquery-comments ul.main > li.comment:first-child > .comment-wrapper {
@@ -434,7 +434,6 @@
 }
 
 .jquery-comments ul.main li.comment time {
-  float: right;
   line-height: 1.4em;
   margin-left: .5em;
   font-size: 0.8em;
@@ -478,7 +477,7 @@
 
 .jquery-comments ul.main li.comment .wrapper{
   line-height: 1.4em;
-  overflow: hidden;
+  //overflow: hidden;
 }
 
 .jquery-comments.mobile ul.main li.comment .child-comments li.comment .wrapper{
@@ -526,6 +525,24 @@
 .jquery-comments ul.main li.comment .actions > * {
   color: #999;
   font-weight: bold;
+  box-shadow: none;
+  //border: 1px solid;
+  //border-radius: 3px;
+  &#dropdownMenuLink {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    height: 22px;
+    width: 22px;
+    margin-right: 4px;
+    position: relative;
+  }
+  span.three-dots {
+    height: 4px;
+    position: relative;
+    top: -13px;
+  }
 }
 
 .jquery-comments ul.main li.comment .actions .action {
@@ -537,7 +554,7 @@
   font-size: 0.9em;
 }
 
-.jquery-comments ul.main li.comment .actions .action:first-child {
+.jquery-comments ul.main li.comment .actions .action {
   margin-left: 0;
 }
 
@@ -566,12 +583,12 @@
 
 /* Child comments */
 .jquery-comments ul.main li.comment .child-comments > *:before { /* Margin for second level content */
-  content: "";
-  height: 1px;
-  float: left;
-
-  width: calc(3.6em + .5em);	/* Profile picture width plus margin */
-  max-width: calc(50px + .5em);	/* Profile picture max width plus margin */
+  //content: "";
+  //height: 1px;
+  //float: left;
+  //
+  //width: calc(3.6em + .5em);	/* Profile picture width plus margin */
+  //max-width: calc(50px + .5em);	/* Profile picture max width plus margin */
 }
 
 .jquery-comments ul.main li.comment .child-comments .profile-picture {
@@ -635,6 +652,7 @@
 }
 
 .jquery-comments ul.main li.comment.edit > .comment-wrapper .commenting-field {
+  width: 100%;
   padding: 0 !important;	/* Parent element has the padding */
 }
 
@@ -652,9 +670,43 @@
   width: 540px;
 }
 
+.comment-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  border-top: none !important;
+  border-bottom: 1px solid #DDD;
+  .comment-content {
+    position: relative;
+    width: 100%;
+    .dropdown {
+      &.actions {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    }
+  }
+}
+
 .file-title {
   border: 1px solid;
   padding: 10px;
+  cursor: pointer;
+  display: flex;
+  color: #fff;
+  font-weight: 800;
+  background: dodgerblue;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  .add-comment {
+    width: 16px;
+    //height: 16px;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+    font-weight: bolder;
+  }
 }
 
 .issue-container {
@@ -662,4 +714,23 @@
   &.active-file {
     display: block;
   }
+}
+
+.dropdown {
+  &.actions {
+    display: block !important;
+  }
+  .dropdown-menu {
+    left: unset;
+    right: 0;
+    top: 18px;
+    padding: 0 10px;
+  }
+}
+
+ul.child-comments {
+  border: 1px solid #DDD;
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 4px;
 }
