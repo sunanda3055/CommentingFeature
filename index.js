@@ -54,7 +54,7 @@
             'click .navigation li.title' : 'toggleNavigationDropdown',
 
             // Main comenting field
-            'click .commenting-field.main .textarea': 'showMainCommentingField',
+            'click .commenting-field.main .issue-title .add-comment': 'showMainCommentingField',
             'click .commenting-field.main .close' : 'hideMainCommentingField',
 
             // All commenting fields
@@ -78,8 +78,12 @@
             'click li.comment div.dropdown.actions button': 'actionButtonClicked',
             'click li.comment button.edit': 'editButtonClicked',
 
+            //Comment wrapper
+            'click li.comment .issue-container >.comment-wrapper': 'issueClicked',
+
             //accordion
-            'click li.comment div.file-title': 'accordionOpen',
+            'click .commenting-field.main .issue-title .file-name': 'toggleFileWrapper',
+            'click li.comment ul.child-comments li.comment': 'childCommentClicked',
 
             // Prevent propagating the click event into buttons under the autocomplete dropdown
             'click .dropdown.autocomplete': 'stopPropagation',
@@ -106,7 +110,7 @@
 
                 // Strings to be formatted (for example localization)
                 textareaPlaceholderText: 'Add a file',
-                sendText: 'Send',
+                sendText: 'Comment',
                 replyText: 'Reply',
                 editText: 'Edit',
                 editedText: 'Edited',
@@ -154,6 +158,7 @@
                     modified: 'modified',
                     content: 'content',
                     file: 'file',
+                    fileName: 'file_name',
                     // fileURL: 'file_url',
                     // fileMimeType: 'file_mime_type',
                     pings: 'pings',
@@ -256,7 +261,6 @@
             // ========
 
             this.options.getComments(function(commentsArray) {
-                console.log('commentsArray----->', commentsArray);
                 // Convert comments to custom data model
                 var commentModels = commentsArray.map(function(commentsJSON){
                     return self.createCommentModel(commentsJSON)
@@ -474,17 +478,6 @@
             }
         },
 
-        updateToggleAllButtons: function() {
-            var self = this;
-            var commentList = this.$el.find('#comment-list');
-
-            // Fold comments, find first level children and update toggle buttons
-            commentList.find('.comment').removeClass('visible');
-            commentList.children('.comment').each(function(index, el) {
-                self.updateToggleAllButton($(el));
-            });
-        },
-
         forceResponsive: function() {
             this.$el.addClass('responsive');
         },
@@ -551,7 +544,9 @@
         },
 
         showMainCommentingField: function(ev) {
-            var mainTextarea = $(ev.currentTarget);
+            var addIssue = $(ev.currentTarget);
+            var mainTextarea = addIssue.parent('.issue-title').siblings('.textarea-wrapper').find('.textarea');
+            mainTextarea.show();
             mainTextarea.siblings('.control-row').show();
             mainTextarea.parent().find('.close').show();
             mainTextarea.focus();
@@ -567,6 +562,7 @@
 
             mainControlRow.hide();
             closeButton.hide();
+            mainTextarea.hide();
             mainTextarea.blur();
         },
 
@@ -765,9 +761,18 @@
 
         actionButtonClicked: function(ev) {
             //dropdown-menu
+            // ev.stopImmediatePropagation();
             var actionButton = $(ev.currentTarget);
             var currentEl = actionButton.parents('.dropdown.actions').find('.dropdown-menu');
             currentEl.toggle();
+
+            var $this = actionButton.parents('.comment');
+            var dataId = $this.attr("data-id");
+            var match = actionButton.parents('#comment-list').find('> li.comment[data-id="'+dataId+'"]');
+            if(!actionButton.parents().find('ul.child-comments')) {
+                actionButton.parents('#comment-list').find('>li.comment').not(match).hide();
+            }
+
         },
 
         replyButtonClicked: function(ev) {
@@ -788,7 +793,7 @@
 
                 // Move cursor to end
                 var textarea = replyField.find('.textarea');
-                this.moveCursorToEnd(textarea)
+                this.moveCursorToEnd(textarea);
 
                 // Make sure the reply field will be displayed
                 var scrollTop = this.options.scrollContainer.scrollTop();
@@ -822,10 +827,51 @@
             this.moveCursorToEnd(textarea);
         },
 
-        accordionOpen: function(ev) {
+        issueClicked: function(ev) {
+            // ev.stopImmediatePropagation();
+            var issue = $(ev.currentTarget);
+            var $this = issue.parents('.comment');
+            var toggleIssue = issue.parents('#comment-list').find('> .comment');
+            toggleIssue.not($this).toggle();
+            $this.find('ul.child-comments').toggle();
+
+        //    show add button
+            $this.find('.issue-title .action.add-comment').show();
+        },
+
+        toggleFileWrapper: function(ev) {
             var fileClicked = $(ev.currentTarget);
-            var currentEl = fileClicked.parents('li.comment').find('.issue-container');
-            currentEl.toggleClass('active-file');
+            fileClicked.parents('.jquery-comments').find('.data-container').toggle();
+        },
+
+        childCommentClicked: function(ev) {
+            var replyButton = $(ev.currentTarget);
+            var outermostParent = replyButton.parents('li.comment').last();
+            var parentId = replyButton.data().id;
+
+            // Remove existing field
+            var replyField = outermostParent.find('.child-comments > .commenting-field');
+            if(replyField.length) replyField.remove();
+            var previousParentId = replyField.find('.textarea').attr('data-parent');
+
+            // Create the reply field (do not re-create)
+            if(previousParentId != parentId) {
+                replyField = this.createCommentingFieldElement(parentId);
+                outermostParent.find('.child-comments').append(replyField);
+
+                // Move cursor to end
+                var textarea = replyField.find('.textarea');
+                this.moveCursorToEnd(textarea);
+
+                // Make sure the reply field will be displayed
+                var scrollTop = this.options.scrollContainer.scrollTop();
+                var endOfReply = scrollTop + replyField.position().top + replyField.outerHeight();
+                var endOfScrollable = scrollTop + this.options.scrollContainer.outerHeight();
+                if(endOfReply > endOfScrollable) {
+                    var newScrollTop = scrollTop + (endOfReply - endOfScrollable);
+                    this.options.scrollContainer.scrollTop(newScrollTop);
+                }
+            }
         },
 
         stopPropagation: function(ev) {
@@ -872,11 +918,11 @@
         },
 
         createProfilePictureElement: function(src, userId) {
-            // if(src) {
-            //     var profilePicture = $('<div/>').css({
-            //         'background-image': 'url(' + src + ')'
-            //     });
-            // } else
+            if(src) {
+                var profilePicture = $('<div/>').css({
+                    'background-image': 'url(' + src + ')'
+                });
+            } else
                 {
                 var profilePicture = $('<i/>', {
                     'class': 'fa fa-user'
@@ -899,7 +945,26 @@
             var commentingField = $('<div/>', {
                 'class': 'commenting-field'
             });
-            if(isMain) commentingField.addClass('main');
+
+            //File name
+            var issueFileElement = $('<div/>', {
+                'class': 'issue-title'
+            });
+
+            var fileName = $('<span/>', {
+                'class': 'file-name',
+                'text': 'filename'
+            });
+
+            var addComment = $('<button/>', {
+                'class': 'action reply add-comment',
+                'type': 'button',
+                text: '+'
+            });
+
+            issueFileElement.append(fileName).append(addComment);
+
+            if(isMain) commentingField.addClass('main').append(issueFileElement);
 
             // Comment was modified, use existing data
             if(existingCommentId) {
@@ -936,8 +1001,9 @@
 
             // Close button
             var closeButton = $('<span/>', {
-                'class': 'close inline-button'
-            }).append($('<span class="left"/>')).append($('<span class="right"/>'));
+                'class': 'close inline-button highlight-background',
+                'text': 'Cancel'
+            });
 
             // Save button text
             if(existingCommentId) {
@@ -965,8 +1031,8 @@
             });
 
             // Populate the element
-            controlRow.prepend(saveButton);
-            textareaWrapper.append(closeButton).append(textarea).append(controlRow);
+            controlRow.prepend(saveButton).append(closeButton);
+            textareaWrapper.append(textarea).append(controlRow);
             commentingField.append(profilePicture).append(textareaWrapper);
 
 
@@ -1050,14 +1116,16 @@
 
         createCommentElement: function(commentModel) {
             // Comment container element
-            var sibElement = $('<div/>', {
-                'class': 'file-title'
-            });
-            var addComment = $('<button/>', {
-                'class': 'action reply add-comment',
-                'type': 'button',
-                text: '+'
-            });
+            // var issueFileElement = $('<div/>', {
+            //     'class': 'issue-title'
+            // });
+            //
+            // var addComment = $('<button/>', {
+            //     'class': 'action reply add-comment',
+            //     'type': 'button',
+            //     text: '+'
+            // });
+
             var wrapperDiv = $('<div/>', {
                 'class': 'issue-container'
             });
@@ -1078,10 +1146,15 @@
             var commentWrapper = this.createCommentWrapperElement(commentModel);
 
             if(commentModel.parent == null) {
-                sibElement.append(addComment);
-                sibElement.append(commentWrapper);
-                commentEl.append(sibElement);
-                // wrapperDiv.append(commentWrapper);
+                // var fileName = $('<span/>', {
+                //     'class': 'file-name',
+                //     'text': 'filename'
+                // });
+                //
+                // issueFileElement.append(fileName).append(addComment);
+                // issueFileElement.append(commentWrapper);
+                // commentEl.append(issueFileElement);
+                wrapperDiv.append(commentWrapper);
                 wrapperDiv.append(childComments);
                 commentEl.append(wrapperDiv);
             } else {
@@ -1218,9 +1291,9 @@
             wrapper.append(content);
             contentContainer.append(nameEl).append(actionMenu).append(wrapper);
             commentWrapper.append(profilePicture).append(contentContainer);
-            if(commentModel.parent == null) {
-                return content;
-            } else
+            // if(commentModel.parent == null) {
+            //     return content;
+            // } else
                 return commentWrapper;
         },
 
@@ -1493,16 +1566,6 @@
 
         normalizeSpaces: function(inputText) {
             return inputText.replace(new RegExp('\u00a0', 'g'), ' ');   // Convert non-breaking spaces to reguar spaces
-        },
-
-        after: function(times, func) {
-            var self = this;
-            return function() {
-                times--;
-                if (times == 0) {
-                    return func.apply(self, arguments);
-                }
-            }
         },
 
         highlightTags: function(commentModel, html) {

@@ -157,14 +157,14 @@
   margin-right: 15px;	/* Because of scrollbar */
 }
 
-.jquery-comments .textarea-wrapper .close {
-  width: 1em;
-  height: 1em;
-}
+//.jquery-comments .textarea-wrapper .close {
+//  width: 1em;
+//  height: 1em;
+//}
 
 .jquery-comments .textarea-wrapper .close span {
   background: #999;
-  width: 25%;
+  width: 3px;
   left: 37.5%;
   height: 100%;
   position: absolute;
@@ -199,29 +199,29 @@
 }
 
 .jquery-comments .textarea-wrapper .control-row > span {
-  float: right;
-
+  //float: right;
+  position: unset;
   color: #FFF;
   padding: 0 1em;
   font-size: 1em;
-  line-height: 1.6em;
-  margin-top: .4em;
+  //line-height: 1.6em;
+  //margin-top: .4em;
   border: 1px solid rgba(0, 0, 0, 0);
   opacity: .5;
 }
 
-.jquery-comments .textarea-wrapper .control-row > span:not(:first-child) {
-  margin-right: .5em;
-}
+//.jquery-comments .textarea-wrapper .control-row > span:not(:first-child) {
+//  margin-right: .5em;
+//}
 
 .jquery-comments .textarea-wrapper .control-row > span.enabled {
   opacity: 1;
   cursor: pointer;
 }
 
-.jquery-comments .textarea-wrapper .control-row > span:not(.enabled) {
-  pointer-events: none;
-}
+//.jquery-comments .textarea-wrapper .control-row > span:not(.enabled) {
+//  pointer-events: none;
+//}
 
 .jquery-comments .textarea-wrapper .control-row > span.enabled:hover {
   opacity: .9;
@@ -583,12 +583,12 @@
 
 /* Child comments */
 .jquery-comments ul.main li.comment .child-comments > *:before { /* Margin for second level content */
-  //content: "";
-  //height: 1px;
-  //float: left;
-  //
-  //width: calc(3.6em + .5em);	/* Profile picture width plus margin */
-  //max-width: calc(50px + .5em);	/* Profile picture max width plus margin */
+  content: "";
+  height: 1px;
+  float: left;
+
+  width: calc(3.6em + .5em);	/* Profile picture width plus margin */
+  max-width: calc(50px + .5em);	/* Profile picture max width plus margin */
 }
 
 .jquery-comments ul.main li.comment .child-comments .profile-picture {
@@ -666,15 +666,31 @@
 
 // added scss
 
-#comments-container {
+div[id^="comments-container"] {
   width: 540px;
+  border-bottom: 1px solid #DDD;
+  margin-bottom: 50px;
+}
+
+.commenting-field {
+  &.main {
+    //display: none;
+    .profile-picture {
+      display: none;
+    }
+
+    .textarea {
+      display: none;
+    }
+  }
+
 }
 
 .comment-wrapper {
   display: flex;
   justify-content: flex-start;
   border-top: none !important;
-  border-bottom: 1px solid #DDD;
+  //border-bottom: 1px solid #DDD;
   .comment-content {
     position: relative;
     width: 100%;
@@ -688,7 +704,7 @@
   }
 }
 
-.file-title {
+.issue-title {
   border: 1px solid;
   padding: 10px;
   cursor: pointer;
@@ -696,9 +712,14 @@
   color: #fff;
   font-weight: 800;
   background: dodgerblue;
-  flex-direction: row-reverse;
+  //flex-direction: row-reverse;
   justify-content: space-between;
+  .file-name {
+    word-break: break-word;
+    width: 90%;
+  }
   .add-comment {
+    //display: none;
     width: 16px;
     //height: 16px;
     background: #000;
@@ -710,10 +731,10 @@
 }
 
 .issue-container {
-  display: none;
-  &.active-file {
-    display: block;
-  }
+  //display: none;
+  //&.active-issue {
+  //  display: block;
+  //}
 }
 
 .dropdown {
@@ -729,8 +750,37 @@
 }
 
 ul.child-comments {
-  border: 1px solid #DDD;
+  //border: 1px solid #DDD;
   border-top: 0;
   border-bottom: 0;
   border-radius: 4px;
+  display: none;
+}
+
+.comment {
+  &.by-current-user {
+    &.edit {
+      .comment-wrapper {
+        display: block;
+      }
+    }
+  }
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  span {
+    margin-top: 2px;
+    &:not(last-child) {
+      margin-right: 2px;
+    }
+  }
+  .close {
+    float: none;
+    font-weight: unset;
+    text-shadow: none;
+    line-height: unset;
+  }
 }

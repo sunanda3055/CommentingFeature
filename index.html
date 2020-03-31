@@ -42,49 +42,58 @@
 
                 return data;
             };
-            $('#comments-container').comments({
-                profilePictureURL: 'https://viima-app.s3.amazonaws.com/media/public/defaults/user-icon.png',
-                currentUserId: 1,
-                roundProfilePictures: true,
-                textareaRows: 1,
-                enableAttachments: true,
-                enableHashtags: true,
-                enablePinging: true,
-                searchUsers: function(term, success, error) {
-                    setTimeout(function() {
-                        success(usersArray.filter(function(user) {
-                            var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
-                            var isNotSelf = user.id != 1;
-                            return containsSearchTerm && isNotSelf;
-                        }));
-                    }, 500);
-                },
-                getComments: function(success, error) {
-                    setTimeout(function() {
-                        success(commentsArray);
-                    }, 500);
-                },
-                postComment: function(data, success, error) {
-                    setTimeout(function() {
-                        success(saveComment(data));
-                    }, 500);
-                },
-                putComment: function(data, success, error) {
-                    setTimeout(function() {
-                        success(saveComment(data));
-                    }, 500);
-                },
-                deleteComment: function(data, success, error) {
-                    setTimeout(function() {
-                        success();
-                    }, 500);
-                }
+
+            fileArray.forEach((el, index) => {
+                $('#comments-container' + index).comments({
+                    profilePictureURL: el.profilePictureURL,
+                    currentUserId: el.currentUserId,
+                    roundProfilePictures: el.roundProfilePictures,
+                    textareaRows: el.textareaRows,
+                    enableAttachments: el.enableAttachments,
+                    enableHashtags: el.enableHashtags,
+                    enablePinging: el.enablePinging,
+                    searchUsers: function(term, success, error) {
+                        setTimeout(function() {
+                            success(usersArray.filter(function(user) {
+                                var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
+                                var isNotSelf = user.id != 1;
+                                return containsSearchTerm && isNotSelf;
+                            }));
+                        }, 500);
+                    },
+                    getComments: function(success, error) {
+                        setTimeout(function() {
+                            success(commentsArray);
+                        }, 500);
+                    },
+                    postComment: function(data, success, error) {
+                        setTimeout(function() {
+                            success(saveComment(data));
+                        }, 500);
+                    },
+                    putComment: function(data, success, error) {
+                        setTimeout(function() {
+                            success(saveComment(data));
+                        }, 500);
+                    },
+                    deleteComment: function(data, success, error) {
+                        setTimeout(function() {
+                            success();
+                        }, 500);
+                    }
+                })
             });
+
+
+
         });
     </script>
 
 </head>
 <body>
-<div id="comments-container"></div>
+<div class="commenting">
+    <div id="comments-container0"></div>
+    <div id="comments-container1"></div>
+</div>
 </body>
 </html>

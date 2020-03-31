@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="fa80774c-c3ca-41b8-925c-63bbba3faa44" name="Default Changelist" comment="" />
+    <list default="true" id="fa80774c-c3ca-41b8-925c-63bbba3faa44" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/comments-data.js" beforeDir="false" afterPath="$PROJECT_DIR$/comments-data.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sass/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/sass/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sass/style.css.map" beforeDir="false" afterPath="$PROJECT_DIR$/sass/style.css.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sass/style.scss" beforeDir="false" afterPath="$PROJECT_DIR$/sass/style.scss" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -68,16 +75,16 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="html" value="37" />
-          <entry key="js" value="1330" />
-          <entry key="scss" value="284" />
+          <entry key="html" value="109" />
+          <entry key="js" value="3380" />
+          <entry key="scss" value="571" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="37" />
-          <entry key="JavaScript" value="1330" />
-          <entry key="SCSS" value="284" />
+          <entry key="HTML" value="109" />
+          <entry key="JavaScript" value="3380" />
+          <entry key="SCSS" value="571" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -101,26 +108,31 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/comments-data.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-161">
-              <caret line="134" column="33" selection-start-line="134" selection-start-column="33" selection-end-line="134" selection-end-column="33" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="351">
-              <caret line="87" column="32" selection-start-line="87" selection-start-column="32" selection-end-line="87" selection-end-column="32" />
+            <state relative-caret-position="213">
+              <caret line="203" column="91" lean-forward="true" selection-start-line="203" selection-start-column="91" selection-end-line="203" selection-end-column="91" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="498">
+              <caret line="93" column="22" selection-start-line="93" selection-start-column="22" selection-end-line="93" selection-end-column="22" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="440">
-              <caret line="1621" lean-forward="true" selection-start-line="1621" selection-end-line="1621" />
+            <state relative-caret-position="161">
+              <caret line="1042" lean-forward="true" selection-start-line="1042" selection-end-line="1042" />
+              <folding>
+                <element signature="e#34742#36172#0" />
+                <element signature="e#40232#40840#0" />
+                <element signature="e#42324#44469#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -128,8 +140,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sass/style.scss">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="697" column="25" lean-forward="true" selection-start-line="697" selection-start-column="25" selection-end-line="697" selection-end-column="25" />
+            <state relative-caret-position="139">
+              <caret line="675" column="10" lean-forward="true" selection-start-line="675" selection-start-column="10" selection-end-line="675" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -138,41 +150,42 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>time</find>
+      <find>fileArray.forEach((el, index) =&gt; {</find>
+      <find>null</find>
+      <find>main</find>
+      <find>Comments</find>
+      <find>comments-container</find>
+      <find>====</find>
+      <find>self------&gt;</find>
+      <find>accordion</find>
+      <find>issueFileElement</find>
+      <find>issueClicked</find>
+      <find>$this------&gt;</find>
+      <find>file-name</find>
       <find>ul.child-comments</find>
-      <find>dropdown actions</find>
-      <find>dropdown-menu</find>
-      <find>&quot;parent&quot;: null</find>
-      <find>profile_picture_url</find>
-      <find>profile-picture</find>
-      <find>commenting-field main</find>
       <find>commenting-field</find>
-      <find>OMG !!!!!</find>
-      <find>Add a</find>
-      <find>name</find>
-      <find>2015</find>
-      <find>Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu. Sed arcu lectus auctor vitae, consectetuer et venenatis eget velit.</find>
-      <find>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.</find>
-      <find>Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.</find>
-      <find>ev---------&gt;</find>
-      <find>It is completed from my side please look again.</find>
-      <find>usersArray</find>
-      <find>searchUsers</find>
-      <find>getComments</find>
-      <find>commentsArray</find>
-      <find>sibElement</find>
-      <find>pings</find>
-      <find>before</find>
-      <find>issue-container</find>
-      <find>file-title</find>
-      <find>active-file</find>
-      <find>My File.txt</find>
+      <find>$this child-------&gt;</find>
+      <find>add-comment</find>
+      <find>active-issue</find>
+      <find>textarea-wrapper</find>
+      <find>control-row</find>
+      <find>textarea</find>
+      <find>close inline-button highlight-background</find>
+      <find>highlight-background</find>
+      <find>close inline-button</find>
+      <find>close</find>
+      <find>hideMainCommentingField</find>
+      <find>showMainCommentingField</find>
+      <find>profile</find>
       <find>comment-wrapper</find>
+      <find>accordionOpen</find>
+      <find>https://viima-app.s3.amazonaws.com/media/public/defaults/user-icon.png</find>
     </findStrings>
     <replaceStrings>
       <replace>2020</replace>
       <replace>issue-title</replace>
       <replace>active-issue</replace>
+      <replace>https://ssl.gstatic.com/s2/profiles/images/silhouette96.png</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -191,9 +204,9 @@
         <option value="$PROJECT_DIR$/dam.js" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/sass/style.scss" />
+        <option value="$PROJECT_DIR$/sass/style.scss" />
         <option value="$PROJECT_DIR$/index.js" />
-        <option value="$PROJECT_DIR$/sass/style.scss" />
-        <option value="$PROJECT_DIR$/sass/style.scss" />
         <option value="$PROJECT_DIR$/comments-data.js" />
       </list>
     </option>
@@ -205,10 +218,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="67" />
-    <option name="y" value="27" />
-    <option name="width" value="1291" />
-    <option name="height" value="741" />
+    <option name="x" value="65" />
+    <option name="y" value="-4" />
+    <option name="width" value="1301" />
+    <option name="height" value="772" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -237,7 +250,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/jquery-comments-master" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
@@ -281,12 +294,12 @@
       <workItem from="1585469296155" duration="12060000" />
       <workItem from="1585488326250" duration="4384000" />
       <workItem from="1585539765567" duration="22079000" />
-      <workItem from="1585564318059" duration="775000" />
+      <workItem from="1585564318059" duration="34817000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="75143000" />
+    <option name="totallyTimeSpent" value="124190000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -301,7 +314,7 @@
     <frame x="67" y="25" width="1299" height="743" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20689656" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20689656" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -313,7 +326,7 @@
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3284553" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.30179444" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.21696573" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -379,31 +392,36 @@
     <entry file="file://$PROJECT_DIR$/images/user-icon.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="87" column="32" selection-start-line="87" selection-start-column="32" selection-end-line="87" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="1621" lean-forward="true" selection-start-line="1621" selection-end-line="1621" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sass/style.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="697" column="25" lean-forward="true" selection-start-line="697" selection-start-column="25" selection-end-line="697" selection-end-column="25" />
+        <state relative-caret-position="139">
+          <caret line="675" column="10" lean-forward="true" selection-start-line="675" selection-start-column="10" selection-end-line="675" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="498">
+          <caret line="93" column="22" selection-start-line="93" selection-start-column="22" selection-end-line="93" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/comments-data.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-161">
-          <caret line="134" column="33" selection-start-line="134" selection-start-column="33" selection-end-line="134" selection-end-column="33" />
+        <state relative-caret-position="213">
+          <caret line="203" column="91" lean-forward="true" selection-start-line="203" selection-start-column="91" selection-end-line="203" selection-end-column="91" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="1042" lean-forward="true" selection-start-line="1042" selection-end-line="1042" />
+          <folding>
+            <element signature="e#34742#36172#0" />
+            <element signature="e#40232#40840#0" />
+            <element signature="e#42324#44469#0" />
+          </folding>
         </state>
       </provider>
     </entry>
