@@ -79,11 +79,11 @@
             'click li.comment button.edit': 'editButtonClicked',
 
             //Comment wrapper
-            'click li.comment .issue-container >.comment-wrapper': 'issueClicked',
+            'click li.comment .issue-container >.comment-wrapper .comment-container': 'issueClicked',
 
             //accordion
             'click .commenting-field.main .issue-title .file-name': 'toggleFileWrapper',
-            'click li.comment ul.child-comments li.comment': 'childCommentClicked',
+            'click li.comment ul.child-comments li.comment .comment-container': 'childCommentClicked',
 
             // Prevent propagating the click event into buttons under the autocomplete dropdown
             'click .dropdown.autocomplete': 'stopPropagation',
@@ -149,7 +149,7 @@
                 textareaRows: 2,
                 textareaRowsOnFocus: 2,
                 textareaMaxRows: 5,
-                maxRepliesVisible: 2,
+                maxRepliesVisible: 3,
 
                 fieldMappings: {
                     id: 'id',
@@ -763,9 +763,10 @@
             //dropdown-menu
             // ev.stopImmediatePropagation();
             var actionButton = $(ev.currentTarget);
+            actionButton.parents('.issue-container').find('.commenting-field').hide();
             var currentEl = actionButton.parents('.dropdown.actions').find('.dropdown-menu');
             currentEl.toggle();
-
+            //commenting-field
             var $this = actionButton.parents('.comment');
             var dataId = $this.attr("data-id");
             var match = actionButton.parents('#comment-list').find('> li.comment[data-id="'+dataId+'"]');
@@ -828,7 +829,6 @@
         },
 
         issueClicked: function(ev) {
-            // ev.stopImmediatePropagation();
             var issue = $(ev.currentTarget);
             var $this = issue.parents('.comment');
             var toggleIssue = issue.parents('#comment-list').find('> .comment');
@@ -837,6 +837,34 @@
 
         //    show add button
             $this.find('.issue-title .action.add-comment').show();
+
+            var outermostParent = issue.parents('li.comment').last();
+            var parentId = $this.data().id;
+
+            // Remove existing field
+            var replyField = outermostParent.find('.child-comments > .commenting-field');
+            if(replyField.length) replyField.remove();
+            var previousParentId = replyField.find('.textarea').attr('data-parent');
+
+            // Create the reply field (do not re-create)
+            if(previousParentId != parentId) {
+                replyField = this.createCommentingFieldElement(parentId);
+                outermostParent.find('.child-comments').append(replyField);
+
+                // Move cursor to end
+                var textarea = replyField.find('.textarea');
+                this.moveCursorToEnd(textarea);
+
+                // Make sure the reply field will be displayed
+                var scrollTop = this.options.scrollContainer.scrollTop();
+                var endOfReply = scrollTop + replyField.position().top + replyField.outerHeight();
+                var endOfScrollable = scrollTop + this.options.scrollContainer.outerHeight();
+                if(endOfReply > endOfScrollable) {
+                    var newScrollTop = scrollTop + (endOfReply - endOfScrollable);
+                    this.options.scrollContainer.scrollTop(newScrollTop);
+                }
+            }
+
         },
 
         toggleFileWrapper: function(ev) {
@@ -847,7 +875,7 @@
         childCommentClicked: function(ev) {
             var replyButton = $(ev.currentTarget);
             var outermostParent = replyButton.parents('li.comment').last();
-            var parentId = replyButton.data().id;
+            var parentId = replyButton.parents('li.comment').data().id;
 
             // Remove existing field
             var replyField = outermostParent.find('.child-comments > .commenting-field');
@@ -1035,26 +1063,6 @@
             textareaWrapper.append(textarea).append(controlRow);
             commentingField.append(profilePicture).append(textareaWrapper);
 
-
-            if(parentId) {
-
-                // Set the parent id to the field if necessary
-                textarea.attr('data-parent', parentId);
-
-                // Append reply-to tag if necessary
-                var parentModel = this.commentsById[parentId];
-                if(parentModel.parent) {
-                    textarea.html('&nbsp;');    // Needed to set the cursor to correct place
-
-                    // Creating the reply-to tag
-                    var replyToName = '@' + parentModel.fullname;
-                    var replyToTag = this.createTagElement(replyToName, 'reply-to', parentModel.creator, {
-                        'data-user-id': parentModel.creator
-                    });
-                    textarea.prepend(replyToTag);
-                }
-            }
-
             // Pinging users
             if(this.options.enablePinging) {
                 textarea.textcomplete([{
@@ -1115,16 +1123,6 @@
         },
 
         createCommentElement: function(commentModel) {
-            // Comment container element
-            // var issueFileElement = $('<div/>', {
-            //     'class': 'issue-title'
-            // });
-            //
-            // var addComment = $('<button/>', {
-            //     'class': 'action reply add-comment',
-            //     'type': 'button',
-            //     text: '+'
-            // });
 
             var wrapperDiv = $('<div/>', {
                 'class': 'issue-container'
@@ -1146,14 +1144,6 @@
             var commentWrapper = this.createCommentWrapperElement(commentModel);
 
             if(commentModel.parent == null) {
-                // var fileName = $('<span/>', {
-                //     'class': 'file-name',
-                //     'text': 'filename'
-                // });
-                //
-                // issueFileElement.append(fileName).append(addComment);
-                // issueFileElement.append(commentWrapper);
-                // commentEl.append(issueFileElement);
                 wrapperDiv.append(commentWrapper);
                 wrapperDiv.append(childComments);
                 commentEl.append(wrapperDiv);
@@ -1168,6 +1158,10 @@
                 'class': 'comment-wrapper'
             });
 
+            var commentContainer = $('<div/>', {
+                'class': 'comment-container'
+            });
+
             // Profile picture
             var profilePicture = this.createProfilePictureElement(commentModel.profilePictureURL, commentModel.creator);
 
@@ -1175,6 +1169,11 @@
             var time = $('<time/>', {
                 text: this.options.timeFormatter(commentModel.created),
                 'data-original': commentModel.created
+            });
+
+            var resolve = $('<button/>', {
+                text: 'Resolve',
+               'class': 'status'
             });
 
             // Name element
@@ -1201,34 +1200,12 @@
             });
 
             //wrapper for time
-            var divWrap = $('<div/>');
+            var divWrap = $('<div/>', {
+                'class': 'reply-view-header'
+            });
 
             // Highlight admin names
             if(commentModel.createdByAdmin) nameEl.addClass('highlight-font-bold');
-
-            // Show reply-to name if parent of parent exists
-            if(commentModel.parent) {
-                var parent = this.commentsById[commentModel.parent];
-                if(parent.parent) {
-                    var replyTo = $('<span/>', {
-                        'class': 'reply-to',
-                        'text': parent.fullname,
-                        'data-user-id': parent.creator
-                    });
-
-                    // reply icon
-                    var replyIcon = $('<i/>', {
-                        'class': 'fa fa-share'
-                    });
-                    if(this.options.replyIconURL.length) {
-                        replyIcon.css('background-image', 'url("'+this.options.replyIconURL+'")');
-                        replyIcon.addClass('image');
-                    }
-
-                    replyTo.prepend(replyIcon);
-                    nameEl.append(replyTo);
-                }
-            }
 
             // Wrapper
             var wrapper = $('<div/>', {
@@ -1287,14 +1264,21 @@
                     actions.append(editButton);
                 }
             }
-            nameEl.append(divWrap.append(time));
+
+            divWrap.append(time);
+
+            if(commentModel.parent == null) {
+                divWrap.append(resolve);
+            }
+
+
+            nameEl.append(profilePicture).append(divWrap);
             wrapper.append(content);
-            contentContainer.append(nameEl).append(actionMenu).append(wrapper);
-            commentWrapper.append(profilePicture).append(contentContainer);
-            // if(commentModel.parent == null) {
-            //     return content;
-            // } else
-                return commentWrapper;
+            contentContainer.append(nameEl);
+            commentContainer.append(contentContainer).append(wrapper);
+            commentWrapper.append(commentContainer).append(actionMenu);
+
+            return commentWrapper;
         },
 
         createTagElement: function(text, extraClasses, value, extraAttributes) {
@@ -1485,9 +1469,6 @@
 
         getTextareaContent: function(textarea, humanReadable) {
             var textareaClone = textarea.clone();
-
-            // Remove reply-to tag
-            textareaClone.find('.reply-to.tag').remove();
 
             // Replace tags with text values
             textareaClone.find('.tag.hashtag').replaceWith(function(){
