@@ -32,14 +32,6 @@
     <script type="text/javascript">
         $(function() {
             var saveComment = function(data) {
-
-                // Convert pings to human readable format
-                $(Object.keys(data.pings)).each(function(index, userId) {
-                    var fullname = data.pings[userId];
-                    var pingText = '@' + fullname;
-                    data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
-                });
-
                 return data;
             };
 
@@ -47,11 +39,9 @@
                 $('#comments-container' + index).comments({
                     profilePictureURL: el.profilePictureURL,
                     currentUserId: el.currentUserId,
+                    userFileName: el.userFileName,
                     roundProfilePictures: el.roundProfilePictures,
                     textareaRows: el.textareaRows,
-                    enableAttachments: el.enableAttachments,
-                    enableHashtags: el.enableHashtags,
-                    enablePinging: el.enablePinging,
                     searchUsers: function(term, success, error) {
                         setTimeout(function() {
                             success(usersArray.filter(function(user) {
@@ -83,9 +73,6 @@
                     }
                 })
             });
-
-
-
         });
     </script>
 

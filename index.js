@@ -69,14 +69,13 @@
 
             // Other actions
             'click li.comment button.delete.enabled' : 'deleteComment',
-            'click li.comment .hashtag' : 'hashtagClicked',
-            'click li.comment .ping' : 'pingClicked',
 
             // Other
             'click li.comment ul.child-comments .toggle-all': 'toggleReplies',
             'click li.comment button.reply': 'replyButtonClicked',
             'click li.comment div.dropdown.actions button': 'actionButtonClicked',
             'click li.comment button.edit': 'editButtonClicked',
+            'click li.comment button.status': 'resolveButtonClicked',
 
             //Comment wrapper
             'click li.comment .issue-container >.comment-wrapper .comment-container': 'issueClicked',
@@ -102,6 +101,7 @@
                 profilePictureURL: '',
                 currentUserIsAdmin: false,
                 currentUserId: null,
+                userFileName: '',
 
                 // Font awesome icon overrides
                 replyIconURL: '',
@@ -117,25 +117,17 @@
                 youText: 'You',
                 saveText: 'Save',
                 deleteText: 'Delete',
-                newText: 'New',
                 viewAllRepliesText: 'View all __replyCount__ replies',
                 hideRepliesText: 'Hide replies',
                 noCommentsText: 'No comments',
-                noAttachmentsText: 'No attachments',
-                attachmentDropText: 'Drop files here',
                 textFormatter: function(text) {return text},
 
                 // Functionalities
                 enableReplying: true,
                 enableEditing: true,
-                enableUpvoting: true,
                 enableDeleting: true,
-                enableAttachments: false,
-                enableHashtags: false,
-                enablePinging: false,
                 enableDeletingCommentWithReplies: false,
-                enableNavigation: true,
-                postCommentOnEnter: false,
+                postCommentOnEnter: true,
                 forceResponsive: false,
                 readOnly: false,
                 defaultNavigationSortKey: 'newest',
@@ -158,15 +150,11 @@
                     modified: 'modified',
                     content: 'content',
                     file: 'file',
-                    fileName: 'file_name',
-                    // fileURL: 'file_url',
-                    // fileMimeType: 'file_mime_type',
-                    pings: 'pings',
+                    userFileName: 'userFileName',
                     creator: 'creator',
                     fullname: 'fullname',
                     profileURL: 'profile_url',
                     profilePictureURL: 'profile_picture_url',
-                    isNew: 'is_new',
                     createdByAdmin: 'created_by_admin',
                     createdByCurrentUser: 'created_by_current_user'
                 },
@@ -176,8 +164,6 @@
                 postComment: function(commentJSON, success, error) {success(commentJSON)},
                 putComment: function(commentJSON, success, error) {success(commentJSON)},
                 deleteComment: function(commentJSON, success, error) {success()},
-                hashtagClicked: function(hashtag) {},
-                pingClicked: function(userId) {},
                 refresh: function() {},
                 timeFormatter: function(time) {return new Date(time).toLocaleDateString()}
             }
@@ -198,7 +184,7 @@
             if($.browser.mobile) this.$el.addClass('mobile');
 
             // Init options
-            this.options = $.extend(true, {}, this.getDefaultOptions(), options);;
+            this.options = $.extend(true, {}, this.getDefaultOptions(), options);
 
             // Read-only mode
             if(this.options.readOnly) this.$el.addClass('read-only');
@@ -281,6 +267,7 @@
         createCommentModel: function(commentJSON) {
             var commentModel = this.applyInternalMappings(commentJSON);
             commentModel.childs = [];
+            // console.log('commentModel-------->', commentModel);
             return commentModel;
         },
 
@@ -311,9 +298,6 @@
 
             // Create comments
             this.createComments();
-
-            // Remove spinner
-            this.$el.find('> .spinner').remove();
 
             this.options.refresh();
         },
@@ -684,7 +668,6 @@
             $.extend(commentJSON, {
                 parent: textarea.attr('data-parent') || null,
                 content: this.getTextareaContent(textarea),
-                pings: this.getPings(textarea),
                 modified: new Date().getTime()
             });
 
@@ -741,27 +724,21 @@
             this.options.deleteComment(commentJSON, success, error);
         },
 
-        hashtagClicked: function(ev) {
-            var el = $(ev.currentTarget);
-            var value = el.attr('data-value');
-            this.options.hashtagClicked(value);
-        },
-
-        pingClicked: function(ev) {
-            var el = $(ev.currentTarget);
-            var value = el.attr('data-value');
-            this.options.pingClicked(value);
-        },
-
         toggleReplies: function(ev) {
             var el = $(ev.currentTarget);
             el.siblings('.togglable-reply').toggleClass('visible');
             this.setToggleAllButtonText(el, true);
         },
 
+        resolveButtonClicked: function(ev) {
+          var el = $(ev.currentTarget);
+          el.addClass('resolved');
+          // el.parents('.issue-container').find('.commenting-field').hide();
+          console.log('el------->', el);
+        },
+
         actionButtonClicked: function(ev) {
             //dropdown-menu
-            // ev.stopImmediatePropagation();
             var actionButton = $(ev.currentTarget);
             actionButton.parents('.issue-container').find('.commenting-field').hide();
             var currentEl = actionButton.parents('.dropdown.actions').find('.dropdown-menu');
@@ -981,7 +958,7 @@
 
             var fileName = $('<span/>', {
                 'class': 'file-name',
-                'text': 'filename'
+                'text': this.options.userFileName
             });
 
             var addComment = $('<button/>', {
@@ -1063,62 +1040,6 @@
             textareaWrapper.append(textarea).append(controlRow);
             commentingField.append(profilePicture).append(textareaWrapper);
 
-            // Pinging users
-            if(this.options.enablePinging) {
-                textarea.textcomplete([{
-                    match: /(^|\s)@([^@]*)$/i,
-                    index: 2,
-                    search: function (term, callback) {
-                        term = self.normalizeSpaces(term);
-
-                        // Return empty array on error
-                        var error = function() {
-                            callback([]);
-                        };
-
-                        self.options.searchUsers(term, callback, error);
-                    },
-                    template: function(user) {
-                        var wrapper = $('<div/>');
-
-                        var profilePictureEl = self.createProfilePictureElement(user.profile_picture_url);
-
-                        var detailsEl = $('<div/>', {
-                            'class': 'details',
-                        });
-                        var nameEl = $('<div/>', {
-                            'class': 'name',
-                        }).html(user.fullname);
-
-                        var emailEl = $('<div/>', {
-                            'class': 'email',
-                        }).html(user.email);
-
-                        if (user.email) {
-                            detailsEl.append(nameEl).append(emailEl);
-                        } else {
-                            detailsEl.addClass('no-email')
-                            detailsEl.append(nameEl)
-                        }
-
-                        wrapper.append(profilePictureEl).append(detailsEl);
-                        return wrapper.html();
-                    },
-                    replace: function (user) {
-                        var tag = self.createTagElement('@' + user.fullname, 'ping', user.id, {
-                            'data-user-id': user.id
-                        });
-                        return ' ' + tag[0].outerHTML + ' ';
-                    },
-                }], {
-                    appendTo: '.jquery-comments',
-                    dropdownClassName: 'dropdown autocomplete',
-                    maxCount: 5,
-                    rightEdgeOffset: 0,
-                    debounce: 250
-                });
-            }
-
             return commentingField;
         },
 
@@ -1154,6 +1075,7 @@
         },
 
         createCommentWrapperElement: function(commentModel) {
+            // console.log('commentModel=====>',commentModel);
             var commentWrapper = $('<div/>', {
                 'class': 'comment-wrapper'
             });
@@ -1388,7 +1310,6 @@
                 created: time,
                 modified: time,
                 content: this.getTextareaContent(textarea),
-                pings: this.getPings(textarea),
                 fullname: this.options.textFormatter(this.options.youText),
                 profilePictureURL: this.options.profilePictureURL,
                 createdByCurrentUser: true
@@ -1474,9 +1395,6 @@
             textareaClone.find('.tag.hashtag').replaceWith(function(){
                 return humanReadable ? $(this).val() : '#' + $(this).attr('data-value');
             });
-            textareaClone.find('.tag.ping').replaceWith(function(){
-                return humanReadable ? $(this).val() : '@' + $(this).attr('data-value');
-            });
 
             var ce = $('<pre/>').html(textareaClone.html());
             ce.find('div, p, br').replaceWith(function() { return '\n' + this.innerHTML; });
@@ -1492,25 +1410,8 @@
         getFormattedCommentContent: function(commentModel, replaceNewLines) {
             var html = this.escape(commentModel.content);
             html = this.linkify(html);
-            html = this.highlightTags(commentModel, html);
             if(replaceNewLines) html = html.replace(/(?:\n)/g, '<br>');
             return html;
-        },
-
-        // Return pings in format
-        //  {
-        //      id1: userFullname1,
-        //      id2: userFullname2,
-        //      ...
-        //  }
-        getPings: function(textarea) {
-            var pings = {};
-            textarea.find('.ping').each(function(index, el){
-                var id = parseInt($(el).attr('data-value'));
-                var value = $(el).val();
-                pings[id] = value.slice(1);
-            });
-            return pings;
         },
 
         moveCursorToEnd: function(el) {
@@ -1547,51 +1448,6 @@
 
         normalizeSpaces: function(inputText) {
             return inputText.replace(new RegExp('\u00a0', 'g'), ' ');   // Convert non-breaking spaces to reguar spaces
-        },
-
-        highlightTags: function(commentModel, html) {
-            if(this.options.enableHashtags) html = this.highlightHashtags(commentModel, html);
-            if(this.options.enablePinging) html = this.highlightPings(commentModel, html);
-            return html;
-        },
-
-        highlightHashtags: function(commentModel, html) {
-            var self = this;
-
-            if(html.indexOf('#') != -1) {
-
-                var __createTag = function(tag) {
-                    var tag = self.createTagElement('#' + tag, 'hashtag', tag);
-                    return tag[0].outerHTML;
-                };
-
-                var regex = /(^|\s)#([a-zäöüß\d-_]+)/gim;
-                html = html.replace(regex, function($0, $1, $2){
-                    return $1 + __createTag($2);
-                });
-            }
-            return html;
-        },
-
-        highlightPings: function(commentModel, html) {
-            var self = this;
-
-            if(html.indexOf('@') != -1) {
-
-                var __createTag = function(pingText, userId) {
-                    var tag = self.createTagElement(pingText, 'ping', userId, {
-                        'data-user-id': userId
-                    });
-                    return tag[0].outerHTML;
-                };
-
-                $(Object.keys(commentModel.pings)).each(function(index, userId) {
-                    var fullname = commentModel.pings[userId];
-                    var pingText = '@' + fullname;
-                    html = html.replace(new RegExp(pingText, 'g'), __createTag(pingText, userId));
-                });
-            }
-            return html;
         },
 
         linkify: function(inputText) {

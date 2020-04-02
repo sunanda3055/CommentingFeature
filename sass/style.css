@@ -514,7 +514,6 @@
 .jquery-comments ul.main li.comment.hidden {
   display: none; }
 
-/* Editing comment */
 .jquery-comments ul.main li.comment.edit > .comment-wrapper .commenting-field {
   width: 100%;
   padding: 0 !important;
@@ -575,6 +574,9 @@ div[id^="comments-container"] {
         border: 1px solid #dadce0;
         font-family: "Google Sans",Roboto,RobotoDraft,Helvetica,Arial,sans-serif; }
         .comment-wrapper .comment-content .name .reply-view-header .status:hover {
+          color: #1a73e8;
+          background: #f8fbff; }
+        .comment-wrapper .comment-content .name .reply-view-header .status.resolved {
           color: #1a73e8;
           background: #f8fbff; }
 
