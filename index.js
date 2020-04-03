@@ -35,6 +35,7 @@
         dataFetched: false,
         currentSortKey: '',
         options: {},
+        count: 1,
         events: {
             // Close dropdowns
             'click': 'closeDropdowns',
@@ -98,9 +99,7 @@
             return {
 
                 // User
-                profilePictureURL: '',
                 currentUserIsAdmin: false,
-                currentUserId: null,
                 userFileName: '',
 
                 // Font awesome icon overrides
@@ -137,7 +136,6 @@
                 deleteButtonColor: '#C9302C',
 
                 scrollContainer: this.$el,
-                roundProfilePictures: false,
                 textareaRows: 2,
                 textareaRowsOnFocus: 2,
                 textareaMaxRows: 5,
@@ -149,12 +147,10 @@
                     created: 'created',
                     modified: 'modified',
                     content: 'content',
-                    file: 'file',
                     userFileName: 'userFileName',
                     creator: 'creator',
+                    childs: 'childs',
                     fullname: 'fullname',
-                    profileURL: 'profile_url',
-                    profilePictureURL: 'profile_picture_url',
                     createdByAdmin: 'created_by_admin',
                     createdByCurrentUser: 'created_by_current_user'
                 },
@@ -221,7 +217,7 @@
                         // Keep the context
                         method = $.proxy(method, this);
 
-                        if (selector == '') {
+                        if (selector === '') {
                             this.$el[bindFunction](eventName, method);
                         } else {
                             this.$el[bindFunction](eventName, selector, method);
@@ -251,7 +247,6 @@
                 var commentModels = commentsArray.map(function(commentsJSON){
                     return self.createCommentModel(commentsJSON)
                 });
-
                 $(commentModels).each(function(index, commentModel) {
                     self.addCommentToDataModel(commentModel);
                 });
@@ -265,26 +260,20 @@
         },
 
         createCommentModel: function(commentJSON) {
-            var commentModel = this.applyInternalMappings(commentJSON);
-            commentModel.childs = [];
-            // console.log('commentModel-------->', commentModel);
-            return commentModel;
+            return this.applyInternalMappings(commentJSON);
         },
 
         addCommentToDataModel: function(commentModel) {
-            if(!(commentModel.id in this.commentsById)) {
-                this.commentsById[commentModel.id] = commentModel;
 
-                // Update child array of the parent (append childs to the array of outer most parent)
-                if(commentModel.parent) {
-                    var outermostParent = this.getOutermostParent(commentModel.parent);
-                    outermostParent.childs.push(commentModel.id);
-                }
-            }
+            // Update child array of the parent (append childs to the array of outer most parent)
+            if(commentModel.parent) {
+                var outermostParent = this.getOutermostParent(commentModel.parent);
+                outermostParent.childs.push(commentModel);
+            } else this.commentsById[commentModel.id] = commentModel;
         },
 
         updateCommentModel: function(commentModel) {
-            $.extend(this.commentsById[commentModel.id], commentModel);
+            $.extend(this.findComment(commentModel.id), commentModel);
         },
 
         render: function() {
@@ -326,8 +315,12 @@
             $(this.getComments()).each(function(index, commentModel) {
                 if(commentModel.parent == null) {
                     mainLevelComments.push(commentModel);
-                } else {
-                    replies.push(commentModel);
+
+                    if(commentModel.childs.length) {
+                        commentModel.childs.map((child, i) => {
+                            replies.push(child);
+                        });
+                    }
                 }
             });
 
@@ -354,7 +347,7 @@
 
                 // Force replies into one level only
                 var outerMostParent = directParentEl.parents('.comment').last();
-                if(outerMostParent.length == 0) outerMostParent = directParentEl;
+                if(outerMostParent.length === 0) outerMostParent = directParentEl;
 
                 // Append element to DOM
                 var childCommentsEl = outerMostParent.find('.child-comments');
@@ -370,7 +363,7 @@
 
                 // Case: main level comment
             } else {
-                if(this.currentSortKey == 'newest') {
+                if(this.currentSortKey === 'newest') {
                     commentList.prepend(commentEl);
                 } else {
                     commentList.append(commentEl);
@@ -380,13 +373,15 @@
 
         removeComment: function(commentId) {
             var self = this;
-            var commentModel = this.commentsById[commentId];
+            var commentModel = this.findComment(commentId);
 
             // Remove child comments recursively
-            var childComments = this.getChildComments(commentModel.id);
-            $(childComments).each(function(index, childComment) {
-                self.removeComment(childComment.id);
-            });
+            if(commentModel.childs) {
+                var childComments = this.getChildComments(commentModel.id);
+                $(childComments).each(function(index, childComment) {
+                    self.removeComment(childComment.id);
+                });
+            }
 
             // Update the child array of outermost parent
             if(commentModel.parent) {
@@ -475,7 +470,7 @@
 
         saveOnKeydown: function(ev) {
             // Save comment on cmd/ctrl + enter
-            if(ev.keyCode == 13) {
+            if(ev.keyCode === 13) {
                 var metaKey = ev.metaKey || ev.ctrlKey;
                 if(this.options.postCommentOnEnter || metaKey) {
                     var el = $(ev.currentTarget);
@@ -496,10 +491,10 @@
 
             // Fix jquery-textcomplete on IE, empty text nodes will break up the autocomplete feature
             $(el[0].childNodes).each(function() {
-                if(this.nodeType == Node.TEXT_NODE && this.length == 0 && this.removeNode) this.removeNode();
+                if(this.nodeType === Node.TEXT_NODE && this.length === 0 && this.removeNode) this.removeNode();
             });
 
-            if (el.data('before') != el.html()) {
+            if (el.data('before') !== el.html()) {
                 el.data('before', el.html());
                 el.trigger('change');
             }
@@ -590,12 +585,12 @@
             var contentOrParentChangedIfEditing = true;
             var content = this.getTextareaContent(textarea, true);
             if(commentModel = this.commentsById[textarea.attr('data-comment')]) {
-                var contentChanged = content != commentModel.content;
+                var contentChanged = content !== commentModel.content;
                 var parentFromModel;
                 if(commentModel.parent) {
                     parentFromModel = commentModel.parent.toString();
                 }
-                var parentChanged = textarea.attr('data-parent') != parentFromModel;
+                var parentChanged = textarea.attr('data-parent') !== parentFromModel;
                 contentOrParentChangedIfEditing = contentChanged || parentChanged;
             }
 
@@ -664,7 +659,7 @@
             saveButton.removeClass('enabled');
 
             // Use a clone of the existing model and update the model after succesfull update
-            var commentJSON =  $.extend({}, this.commentsById[textarea.attr('data-comment')]);
+            var commentJSON =  $.extend({}, this.findComment(textarea.attr('data-comment')));
             $.extend(commentJSON, {
                 parent: textarea.attr('data-parent') || null,
                 content: this.getTextareaContent(textarea),
@@ -702,7 +697,7 @@
             var self = this;
             var deleteButton = $(ev.currentTarget);
             var commentEl = deleteButton.parents('.comment').first();
-            var commentJSON =  $.extend({}, this.commentsById[commentEl.attr('data-id')]);
+            var commentJSON =  $.extend({}, this.findComment(commentEl.attr('data-id')));
             var commentId = commentJSON.id;
             var parentId = commentJSON.parent;
 
@@ -731,10 +726,10 @@
         },
 
         resolveButtonClicked: function(ev) {
-          var el = $(ev.currentTarget);
-          el.addClass('resolved');
-          // el.parents('.issue-container').find('.commenting-field').hide();
-          console.log('el------->', el);
+            var el = $(ev.currentTarget);
+            el.addClass('resolved');
+            // el.parents('.issue-container').find('.commenting-field').hide();
+            // console.log('el------->', el);
         },
 
         actionButtonClicked: function(ev) {
@@ -743,6 +738,7 @@
             actionButton.parents('.issue-container').find('.commenting-field').hide();
             var currentEl = actionButton.parents('.dropdown.actions').find('.dropdown-menu');
             currentEl.toggle();
+
             //commenting-field
             var $this = actionButton.parents('.comment');
             var dataId = $this.attr("data-id");
@@ -765,7 +761,7 @@
             var previousParentId = replyField.find('.textarea').attr('data-parent');
 
             // Create the reply field (do not re-create)
-            if(previousParentId != parentId) {
+            if(previousParentId !== parentId) {
                 replyField = this.createCommentingFieldElement(parentId);
                 outermostParent.find('.child-comments').append(replyField);
 
@@ -812,7 +808,7 @@
             toggleIssue.not($this).toggle();
             $this.find('ul.child-comments').toggle();
 
-        //    show add button
+            //    show add button
             $this.find('.issue-title .action.add-comment').show();
 
             var outermostParent = issue.parents('li.comment').last();
@@ -824,7 +820,7 @@
             var previousParentId = replyField.find('.textarea').attr('data-parent');
 
             // Create the reply field (do not re-create)
-            if(previousParentId != parentId) {
+            if(previousParentId !== parentId) {
                 replyField = this.createCommentingFieldElement(parentId);
                 outermostParent.find('.child-comments').append(replyField);
 
@@ -860,7 +856,7 @@
             var previousParentId = replyField.find('.textarea').attr('data-parent');
 
             // Create the reply field (do not re-create)
-            if(previousParentId != parentId) {
+            if(previousParentId !== parentId) {
                 replyField = this.createCommentingFieldElement(parentId);
                 outermostParent.find('.child-comments').append(replyField);
 
@@ -922,20 +918,14 @@
             commentsContainer.append(noComments);
         },
 
-        createProfilePictureElement: function(src, userId) {
-            if(src) {
-                var profilePicture = $('<div/>').css({
-                    'background-image': 'url(' + src + ')'
-                });
-            } else
-                {
-                var profilePicture = $('<i/>', {
-                    'class': 'fa fa-user'
-                });
-            }
+        createProfilePictureElement: function(userId) {
+            src = "https://ssl.gstatic.com/s2/profiles/images/silhouette96.png";
+            var profilePicture = $('<div/>').css({
+                'background-image': 'url(' + src + ')'
+            });
             profilePicture.addClass('profile-picture');
             profilePicture.attr('data-user-id', userId);
-            if(this.options.roundProfilePictures) profilePicture.addClass('round');
+            profilePicture.addClass('round');
             return profilePicture;
         },
 
@@ -973,16 +963,27 @@
 
             // Comment was modified, use existing data
             if(existingCommentId) {
-                var profilePictureURL = this.commentsById[existingCommentId].profilePictureURL;
-                var userId = this.commentsById[existingCommentId].creator;
+                var userId;
+                if(this.commentsById[existingCommentId] === undefined) {
+                    for (const key of Object.keys(this.commentsById)) {
+                        if(this.commentsById[key].childs) {
+                            this.commentsById[key].childs.map(function (child, i) {
+                                if(child.id === existingCommentId) {
+                                    userId = child.creator;
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    userId = this.commentsById[existingCommentId].creator;
+                }
 
                 // New comment was created
             } else {
-                var profilePictureURL = this.options.profilePictureURL;
-                var userId = this.options.creator;
+                userId = this.options.creator;
             }
 
-            var profilePicture = this.createProfilePictureElement(profilePictureURL, userId);
+            var profilePicture = this.createProfilePictureElement(userId);
 
             // New comment
             var textareaWrapper = $('<div/>', {
@@ -1075,7 +1076,7 @@
         },
 
         createCommentWrapperElement: function(commentModel) {
-            // console.log('commentModel=====>',commentModel);
+
             var commentWrapper = $('<div/>', {
                 'class': 'comment-wrapper'
             });
@@ -1085,7 +1086,7 @@
             });
 
             // Profile picture
-            var profilePicture = this.createProfilePictureElement(commentModel.profilePictureURL, commentModel.creator);
+            var profilePicture = this.createProfilePictureElement(commentModel.creator);
 
             // Time
             var time = $('<time/>', {
@@ -1095,21 +1096,15 @@
 
             var resolve = $('<button/>', {
                 text: 'Resolve',
-               'class': 'status'
+                'class': 'status'
             });
 
             // Name element
             var name = $('<span/>', {
                 'data-user-id': commentModel.creator,
-                'text': commentModel.createdByCurrentUser ? this.options.textFormatter(this.options.youText) : commentModel.fullname
+                'text': commentModel.createdByCurrentUser ? this.options.textFormatter(this.options.youText)
+                    : commentModel.fullname
             });
-
-            if(commentModel.profileURL) {
-                name = $('<a/>', {
-                    'href': commentModel.profileURL,
-                    'html': name
-                });
-            }
 
             var nameEl = $('<div/>', {
                 'class': 'name',
@@ -1141,7 +1136,7 @@
             content.html(this.getFormattedCommentContent(commentModel));
 
             // Edited timestamp
-            if(commentModel.modified && commentModel.modified != commentModel.created) {
+            if(commentModel.modified && commentModel.modified !== commentModel.created) {
                 var editedTime = this.options.timeFormatter(commentModel.modified);
                 var edited = $('<time/>', {
                     'class': 'edited',
@@ -1203,21 +1198,8 @@
             return commentWrapper;
         },
 
-        createTagElement: function(text, extraClasses, value, extraAttributes) {
-            var tagEl = $('<input/>', {
-                'class': 'tag',
-                'type': 'button',
-                'data-role': 'none',
-            });
-            if(extraClasses) tagEl.addClass(extraClasses);
-            tagEl.val(text);
-            tagEl.attr('data-value', value);
-            if (extraAttributes) tagEl.attr(extraAttributes);
-            return tagEl;
-        },
-
         reRenderComment: function(id) {
-            var commentModel = this.commentsById[id];
+            var commentModel = this.findComment(id);
             var commentElements = this.$el.find('li.comment[data-id="'+commentModel.id+'"]');
 
             var self = this;
@@ -1286,11 +1268,13 @@
 
         getComments: function() {
             var self = this;
-            return Object.keys(this.commentsById).map(function(id){return self.commentsById[id]});
+            return Object.keys(this.commentsById).map(function(id){
+                return self.commentsById[id]
+            });
         },
 
         getChildComments: function(parentId) {
-            return this.getComments().filter(function(comment){return comment.parent == parentId});
+            return this.getComments().filter(function(comment){return comment.parent === parentId});
         },
 
         getOutermostParent: function(directParentId) {
@@ -1302,19 +1286,39 @@
             return parentComment;
         },
 
+        findComment: function(id) {
+            var allComments = this.commentsById;
+            if(allComments[id]) {
+                return allComments[id];
+            } else if(allComments[id] === undefined) {
+                var childComment = {};
+                for (const key of Object.keys(allComments)) {
+                    if(allComments[key].childs.length) {
+                        allComments[key].childs.filter(function (child) {
+                            if(child.id === id) {
+                                childComment = child;
+                                return false;
+                            }
+                        });
+                    }
+                }
+                return childComment;
+            }
+        },
+
         createCommentJSON: function(textarea) {
+            this.count++;
             var time = new Date().toISOString();
-            var commentJSON = {
-                id: 'c' +  (this.getComments().length + 1),   // Temporary id
+            return {
+                id: 'cc' + (this.count),   // Temporary id
                 parent: textarea.attr('data-parent') || null,
                 created: time,
                 modified: time,
                 content: this.getTextareaContent(textarea),
                 fullname: this.options.textFormatter(this.options.youText),
-                profilePictureURL: this.options.profilePictureURL,
-                createdByCurrentUser: true
+                createdByCurrentUser: true,
+                childs: []
             };
-            return commentJSON;
         },
 
         isAllowedToDelete: function(commentId) {
@@ -1322,7 +1326,7 @@
                 var isAllowedToDelete = true;
                 if(!this.options.enableDeletingCommentWithReplies) {
                     $(this.getComments()).each(function(index, comment) {
-                        if(comment.parent == commentId) isAllowedToDelete = false;
+                        if(comment.parent === commentId) isAllowedToDelete = false;
                     });
                 }
                 return isAllowedToDelete;
@@ -1347,7 +1351,7 @@
             if(toggle) {
 
                 // Toggle text
-                if(textContainer.text() == hideRepliesText) {
+                if(textContainer.text() === hideRepliesText) {
                     showExpandingText();
                 } else {
                     textContainer.text(hideRepliesText);
@@ -1358,7 +1362,7 @@
             } else {
 
                 // Update text if necessary
-                if(textContainer.text() != hideRepliesText) {
+                if(textContainer.text() !== hideRepliesText) {
                     showExpandingText();
                 }
             }
@@ -1374,12 +1378,12 @@
             };
 
             textarea = $(textarea);
-            var rowCount = focus == true ? this.options.textareaRowsOnFocus : this.options.textareaRows;
+            var rowCount = focus === true ? this.options.textareaRowsOnFocus : this.options.textareaRows;
             do {
                 setRows(rowCount);
                 rowCount++;
                 var isAreaScrollable = textarea[0].scrollHeight > textarea.outerHeight();
-                var maxRowsUsed = this.options.textareaMaxRows == false ?
+                var maxRowsUsed = this.options.textareaMaxRows === false ?
                     false : rowCount > this.options.textareaMaxRows;
             } while(isAreaScrollable && !maxRowsUsed);
         },
@@ -1424,14 +1428,14 @@
             $(el).scrollTop(el.scrollHeight);
 
             // Move cursor to end
-            if (typeof window.getSelection != 'undefined' && typeof document.createRange != 'undefined') {
+            if (typeof window.getSelection !== 'undefined' && typeof document.createRange !== 'undefined') {
                 var range = document.createRange();
                 range.selectNodeContents(el);
                 range.collapse(false);
                 var sel = window.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);
-            } else if (typeof document.body.createTextRange != 'undefined') {
+            } else if (typeof document.body.createTextRange !== 'undefined') {
                 var textRange = document.body.createTextRange();
                 textRange.moveToElementText(el);
                 textRange.collapse(false);
@@ -1480,8 +1484,7 @@
                             .replace(replacePattern3, '<a href="mailto:$1">$1</a>');
                     }
                 }
-                var combinedReplacedText = splitInput.join('');
-                return combinedReplacedText;
+                return splitInput.join('');
             } else {
                 return replacedText;
             }

@@ -24,7 +24,7 @@
             padding: 20px;
             margin: 0;
             font-size: 14px;
-            font-family: "Arial", Georgia, Serif;
+            font-family: "Arial", Georgia, serif;
         }
     </style>
 
@@ -37,23 +37,21 @@
 
             fileArray.forEach((el, index) => {
                 $('#comments-container' + index).comments({
-                    profilePictureURL: el.profilePictureURL,
-                    currentUserId: el.currentUserId,
                     userFileName: el.userFileName,
-                    roundProfilePictures: el.roundProfilePictures,
                     textareaRows: el.textareaRows,
+                    comments: el.comments,
                     searchUsers: function(term, success, error) {
                         setTimeout(function() {
                             success(usersArray.filter(function(user) {
-                                var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
-                                var isNotSelf = user.id != 1;
+                                var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) !== -1;
+                                var isNotSelf = user.id !== 1;
                                 return containsSearchTerm && isNotSelf;
                             }));
                         }, 500);
                     },
                     getComments: function(success, error) {
                         setTimeout(function() {
-                            success(commentsArray);
+                            success(el.comments);
                         }, 500);
                     },
                     postComment: function(data, success, error) {
