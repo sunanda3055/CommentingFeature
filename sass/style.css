@@ -557,28 +557,26 @@ div[id^="comments-container"] {
     position: relative;
     width: 100%;
     cursor: pointer; }
-    .comment-wrapper .comment-content .name .reply-view-header {
-      display: flex;
-      justify-content: space-between; }
-      .comment-wrapper .comment-content .name .reply-view-header .status {
-        color: #d8e0fb;
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 16px;
-        letter-spacing: 0.25px;
-        height: 24px;
-        outline: none;
-        margin-right: 30px;
-        padding: 3px 12px 5px;
-        border-radius: 4px;
-        border: 1px solid #dadce0;
-        font-family: "Google Sans",Roboto,RobotoDraft,Helvetica,Arial,sans-serif; }
-        .comment-wrapper .comment-content .name .reply-view-header .status:hover {
-          color: #1a73e8;
-          background: #f8fbff; }
-        .comment-wrapper .comment-content .name .reply-view-header .status.resolved {
-          color: #1a73e8;
-          background: #f8fbff; }
+    .comment-wrapper .comment-content .name .status {
+      color: #d8e0fb;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 16px;
+      letter-spacing: 0.25px;
+      height: 24px;
+      outline: none;
+      float: right;
+      margin-right: 30px;
+      padding: 3px 12px 5px;
+      border-radius: 4px;
+      border: 1px solid #dadce0;
+      font-family: "Google Sans",Roboto,RobotoDraft,Helvetica,Arial,sans-serif; }
+      .comment-wrapper .comment-content .name .status:hover {
+        color: #1a73e8;
+        background: #f8fbff; }
+      .comment-wrapper .comment-content .name .status.resolved {
+        color: #1a73e8;
+        background: #f8fbff; }
 
 .issue-title {
   border: 1px solid;
@@ -630,5 +628,8 @@ ul.child-comments {
     font-weight: unset;
     text-shadow: none;
     line-height: unset; }
+
+.data-container {
+  display: none; }
 
 /*# sourceMappingURL=style.css.map */

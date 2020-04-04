@@ -728,8 +728,6 @@
         resolveButtonClicked: function(ev) {
             var el = $(ev.currentTarget);
             el.addClass('resolved');
-            // el.parents('.issue-container').find('.commenting-field').hide();
-            // console.log('el------->', el);
         },
 
         actionButtonClicked: function(ev) {
@@ -1185,9 +1183,8 @@
             divWrap.append(time);
 
             if(commentModel.parent == null) {
-                divWrap.append(resolve);
+                nameEl.append(resolve);
             }
-
 
             nameEl.append(profilePicture).append(divWrap);
             wrapper.append(content);

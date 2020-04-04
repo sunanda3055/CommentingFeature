@@ -30,12 +30,17 @@
 
     <!-- Init jquery-comments -->
     <script type="text/javascript">
+
         $(function() {
             var saveComment = function(data) {
                 return data;
             };
 
             fileArray.forEach((el, index) => {
+                var commentContainer = $('<div/>');
+                commentContainer.attr('id', "comments-container"+index);
+                $('.commenting').append(commentContainer);
+
                 $('#comments-container' + index).comments({
                     userFileName: el.userFileName,
                     textareaRows: el.textareaRows,
@@ -76,9 +81,6 @@
 
 </head>
 <body>
-<div class="commenting">
-    <div id="comments-container0"></div>
-    <div id="comments-container1"></div>
-</div>
+<div class="commenting"></div>
 </body>
 </html>
