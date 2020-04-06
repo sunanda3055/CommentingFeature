@@ -375,14 +375,6 @@
             var self = this;
             var commentModel = this.findComment(commentId);
 
-            // Remove child comments recursively
-            if(commentModel.childs) {
-                var childComments = this.getChildComments(commentModel.id);
-                $(childComments).each(function(index, childComment) {
-                    self.removeComment(childComment.id);
-                });
-            }
-
             // Update the child array of outermost parent
             if(commentModel.parent) {
                 var outermostParent = this.getOutermostParent(commentModel.parent);
@@ -618,6 +610,7 @@
 
         postComment: function(ev) {
             var self = this;
+            var updatedArray = [];
             var sendButton = $(ev.currentTarget);
             var commentingField = sendButton.parents('.commenting-field').first();
             var textarea = commentingField.find('.textarea');
@@ -640,6 +633,14 @@
                 sendButton.addClass('enabled');
             };
 
+            for (const key in this.commentsById) {
+                let value = this.commentsById[key];
+                updatedArray.push(value);
+            }
+            if(commentJSON.parent === null) {
+                updatedArray.push(commentJSON);
+            }
+
             this.options.postComment(commentJSON, success, error);
         },
 
@@ -651,6 +652,7 @@
 
         putComment: function(ev) {
             var self = this;
+            var updatedArray = [];
             var saveButton = $(ev.currentTarget);
             var commentingField = saveButton.parents('.commenting-field').first();
             var textarea = commentingField.find('.textarea');
@@ -690,11 +692,17 @@
                 saveButton.addClass('enabled');
             };
 
+            for (const key in this.commentsById) {
+                let value = this.commentsById[key];
+                updatedArray.push(value);
+            }
+
             this.options.putComment(commentJSON, success, error);
         },
 
         deleteComment: function(ev) {
             var self = this;
+            var updatedArray = [];
             var deleteButton = $(ev.currentTarget);
             var commentEl = deleteButton.parents('.comment').first();
             var commentJSON =  $.extend({}, this.findComment(commentEl.attr('data-id')));
@@ -715,6 +723,20 @@
             var error = function() {
                 deleteButton.addClass('enabled');
             };
+
+            for (const key in this.commentsById) {
+                let value = this.commentsById[key];
+                updatedArray.push(value);
+            }
+            if(commentJSON.parent === null){
+                var indexToRemove = '';
+                updatedArray.filter((comment, i) => {
+                    if(comment.id == commentJSON.id) {
+                        indexToRemove=i;
+                    }
+                });
+                updatedArray.splice(indexToRemove, 1);
+            }
 
             this.options.deleteComment(commentJSON, success, error);
         },
