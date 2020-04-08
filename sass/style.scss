@@ -74,8 +74,8 @@
 
 .jquery-comments .profile-picture {
   float: left;
-  width: 3.6rem;
-  height: 3.6rem;
+  width: 32px;
+  height: 32px;
   max-width: 50px;
   max-height: 50px;
   background-size: cover;
@@ -90,6 +90,7 @@
 
 .jquery-comments .profile-picture.round {
   border-radius: 50%;
+  margin-right: 10px;
 }
 
 .jquery-comments .commenting-field.main .profile-picture {
@@ -97,35 +98,8 @@
 }
 
 .jquery-comments .textarea-wrapper {
-  overflow: hidden;
-  padding-left: 15px;
   position: relative;
-}
-
-.jquery-comments .textarea-wrapper:before {
-  content: " ";
-  position: absolute;
-  border: 5px solid #D5D5D5;
-  left: 5px;
-  top: 0;
-  width: 10px;
-  height: 10px;
-  box-sizing: border-box;
-  border-bottom-color: rgba(0, 0, 0, 0);
-  border-left-color: rgba(0, 0, 0, 0);
-}
-
-.jquery-comments .textarea-wrapper:after {
-  content: " ";
-  position: absolute;
-  border: 7px solid #FFF;
-  left: 7px;
-  top: 1px;
-  width: 10px;
-  height: 10px;
-  box-sizing: border-box;
-  border-bottom-color: rgba(0, 0, 0, 0);
-  border-left-color: rgba(0, 0, 0, 0);
+  background-color: #fff;
 }
 
 .jquery-comments .textarea-wrapper .inline-button {
@@ -134,9 +108,7 @@
   z-index: 10;
   position: absolute;
   border: .5em solid rgba(0,0,0,0);
-  box-sizing: content-box;
   font-size: inherit;
-  overflow: hidden;
   opacity: 0.5;
 
   -webkit-user-select: none;
@@ -146,7 +118,7 @@
 }
 
 .jquery-comments .textarea-wrapper .inline-button:hover {
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 .jquery-comments:not(.mobile) .commenting-field-scrollable .textarea-wrapper .inline-button {
@@ -171,13 +143,15 @@
 }
 
 .jquery-comments .textarea-wrapper .textarea {
-  margin: 0;
+  clear: both;
+  margin: 0 0 5px;
   outline: 0;
   overflow-y: auto;
   overflow-x: hidden;
   cursor: text;
-
-  border: 1px solid #CCC;;
+  max-height: 85px;
+  border: 1px solid #CCC;
+  border-radius: 4px;
   background: #FFF;
   font-size: 1em;
   line-height: 1.45em;
@@ -191,11 +165,17 @@
 
 .jquery-comments .textarea-wrapper .control-row > span {
   position: unset;
-  color: #FFF;
-  padding: 0 1em;
-  font-size: 1em;
-  border: 1px solid rgba(0, 0, 0, 0);
+  display: inline-block;
   opacity: .5;
+  font-family: "Google Sans", Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgb(26, 115, 232);
+  height: 28px;
+  border-radius: 4px;
+  background: white;
+  padding: 3px 12px 5px;
+  border: 1px solid rgb(218, 220, 224);
 }
 
 .jquery-comments .textarea-wrapper .control-row > span.enabled {
@@ -397,7 +377,7 @@
 .jquery-comments ul.main li.comment .comment-wrapper,
 .jquery-comments ul.main li.toggle-all,
 .jquery-comments ul.main li.comment .commenting-field {
-  padding: .5em;
+  padding: .5em 0;
 }
 
 .jquery-comments ul.main > li.comment:first-child > .comment-wrapper {
@@ -553,22 +533,6 @@
   display: none;
 }
 
-
-/* Child comments */
-.jquery-comments ul.main li.comment .child-comments > *:before { /* Margin for second level content */
-  content: "";
-  height: 1px;
-  float: left;
-
-  width: calc(3.6em + .5em);	/* Profile picture width plus margin */
-  max-width: calc(50px + .5em);	/* Profile picture max width plus margin */
-}
-
-.jquery-comments ul.main li.comment .child-comments .profile-picture {
-  width: 2.4rem;
-  height: 2.4rem;
-}
-
 .jquery-comments ul.main li.comment .child-comments i.profile-picture {
   font-size: 2.4em;
 }
@@ -634,43 +598,68 @@
 
 // added scss
 
-div[id^="comments-container"] {
+li[id^="comments-container"] {
+
+  list-style: none;
   width: 540px;
 }
 
 .commenting-field {
   &.main {
-    .profile-picture {
+    .textarea-wrapper {
       display: none;
+      &.show-main-textarea {
+        display: block;
+        border-radius: 5px;
+        border: 1px solid #DDD;
+        padding: 10px;
+        .name {
+          span {
+            line-height: 1.4em;
+            font-weight: bold;
+            white-space: nowrap;
+            display: inline-block;
+            margin-top: 6px;
+          }
+        }
+      }
     }
-
-    .textarea {
+  }
+  .textarea-wrapper {
+    .control-row {
       display: none;
     }
   }
-
+  .textarea {
+    transition: border 0.3s ease;
+    &:focus {
+      border: 2px solid blue;
+    }
+  }
 }
 
 #comment-list {
+  border: 1px solid #DDD;
+  border-radius: 5px;
   &.main {
     margin-bottom: 20px;
+  }
+  > li.comment {
+    &:last-child {
+      .comment-wrapper {
+        border-bottom: none;
+      }
+    }
   }
 }
 
 .comment-wrapper {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  border: 1px solid #DDD;
-  border-radius: 5px;
+  border-bottom: 1px solid #DDD;
   position: relative;
-  &+.child-comments {
-    li {
-      &:first-child {
-        margin-top: 10px;
-      }
-    }
-  }
   .dropdown {
     &.actions {
       position: absolute;
@@ -720,21 +709,42 @@ div[id^="comments-container"] {
   padding: 10px;
   cursor: pointer;
   display: flex;
+  align-items: center;
   color: #fff;
   font-weight: 800;
-  background: dodgerblue;
+  background: #007bff;
   justify-content: space-between;
   .file-name {
     word-break: break-word;
     width: 90%;
   }
   .add-comment {
-    width: 16px;
-    background: #000;
-    color: #fff;
-    cursor: pointer;
     outline: none;
-    font-weight: bolder;
+    width: 25px;
+    height: 25px;
+    background: white;
+    border-radius: 50%;
+    position: relative;
+    .plus {
+      width: 13px;
+      height: 13px;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bolder;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 6px;
+      left: 6px;
+    }
+    &.red {
+      background: red;
+    }
+    &.green {
+      background: greenyellow;
+    }
   }
 }
 
@@ -758,6 +768,18 @@ ul.child-comments {
 }
 
 .comment {
+  .issue-container {
+    width: 100%;
+  }
+  > .issue-container {
+    border-radius: 5px;
+    padding: 10px;
+  }
+  &.parent-border {
+    > .issue-container {
+      border: 0;
+    }
+  }
   &.by-current-user {
     &.edit {
       .issue-container {
@@ -785,8 +807,25 @@ ul.child-comments {
     text-shadow: none;
     line-height: unset;
   }
+  .save:hover, .close:hover {
+    background: rgb(248, 251, 255) !important;
+  }
 }
 
 .data-container {
   display: none;
+}
+
+.issue-wrapper {
+  #comment-list {
+    border: 0;
+    > li.comment {
+      border: 1px solid #DDD;
+      border-radius: 5px;
+      background: #fff;
+      .comment-wrapper {
+        border-bottom: 0;
+      }
+    }
+  }
 }

@@ -34,6 +34,7 @@
         commentsById: {},
         dataFetched: false,
         currentSortKey: '',
+        updatedFileArray: [],
         options: {},
         count: 1,
         events: {
@@ -108,7 +109,7 @@
                 noCommentsIconURL: '',
 
                 // Strings to be formatted (for example localization)
-                textareaPlaceholderText: 'Add a file',
+                textareaPlaceholderText: 'Reply...',
                 sendText: 'Comment',
                 replyText: 'Reply',
                 editText: 'Edit',
@@ -132,7 +133,7 @@
                 defaultNavigationSortKey: 'newest',
 
                 // Colors
-                highlightColor: '#2793e6',
+                highlightColor: '#fff',
                 deleteButtonColor: '#C9302C',
 
                 scrollContainer: this.$el,
@@ -150,6 +151,7 @@
                     userFileName: 'userFileName',
                     creator: 'creator',
                     childs: 'childs',
+                    resolved: 'resolved',
                     fullname: 'fullname',
                     createdByAdmin: 'created_by_admin',
                     createdByCurrentUser: 'created_by_current_user'
@@ -260,7 +262,12 @@
         },
 
         createCommentModel: function(commentJSON) {
-            return this.applyInternalMappings(commentJSON);
+            var commentModel = this.applyInternalMappings(commentJSON);
+
+            if(commentJSON.parent === null) {
+                commentModel.resolved = false;
+            }
+            return commentModel;
         },
 
         addCommentToDataModel: function(commentModel) {
@@ -269,7 +276,10 @@
             if(commentModel.parent) {
                 var outermostParent = this.getOutermostParent(commentModel.parent);
                 outermostParent.childs.push(commentModel);
-            } else this.commentsById[commentModel.id] = commentModel;
+            } else {
+                this.commentsById[commentModel.id] = commentModel;
+
+            }
         },
 
         updateCommentModel: function(commentModel) {
@@ -516,29 +526,29 @@
 
         showMainCommentingField: function(ev) {
             var addIssue = $(ev.currentTarget);
-            var mainTextarea = addIssue.parent('.issue-title').siblings('.textarea-wrapper').find('.textarea');
-            mainTextarea.show();
-            mainTextarea.siblings('.control-row').show();
-            mainTextarea.parent().find('.close').show();
+            var textAreaContainer = addIssue.parent('.issue-title').siblings('.textarea-wrapper');
+            var mainTextarea = textAreaContainer.find('.textarea');
+
+            textAreaContainer.toggleClass('show-main-textarea');
             mainTextarea.focus();
+            mainTextarea.siblings('.control-row').show();
         },
 
         hideMainCommentingField: function(ev) {
             var closeButton = $(ev.currentTarget);
+            var textAreaContainer = this.$el.find('.commenting-field.main .textarea-wrapper');
             var mainTextarea = this.$el.find('.commenting-field.main .textarea');
-            var mainControlRow = this.$el.find('.commenting-field.main .control-row');
 
             this.clearTextarea(mainTextarea);
             this.adjustTextareaHeight(mainTextarea, false);
 
-            mainControlRow.hide();
-            closeButton.hide();
-            mainTextarea.hide();
+            textAreaContainer.removeClass('show-main-textarea');
             mainTextarea.blur();
         },
 
         increaseTextareaHeight: function(ev) {
             var textarea = $(ev.currentTarget);
+            textarea.siblings('.control-row').show();
             this.adjustTextareaHeight(textarea, true);
         },
 
@@ -611,6 +621,7 @@
         postComment: function(ev) {
             var self = this;
             var updatedArray = [];
+            var fileObj = {};
             var sendButton = $(ev.currentTarget);
             var commentingField = sendButton.parents('.commenting-field').first();
             var textarea = commentingField.find('.textarea');
@@ -641,6 +652,9 @@
                 updatedArray.push(commentJSON);
             }
 
+            fileObj["userFileName"] = this.options.userFileName;
+            fileObj["comments"] = updatedArray;
+
             this.options.postComment(commentJSON, success, error);
         },
 
@@ -653,6 +667,7 @@
         putComment: function(ev) {
             var self = this;
             var updatedArray = [];
+            var fileObj = {};
             var saveButton = $(ev.currentTarget);
             var commentingField = saveButton.parents('.commenting-field').first();
             var textarea = commentingField.find('.textarea');
@@ -697,12 +712,16 @@
                 updatedArray.push(value);
             }
 
+            fileObj["userFileName"] = this.options.userFileName;
+            fileObj["comments"] = updatedArray;
+
             this.options.putComment(commentJSON, success, error);
         },
 
         deleteComment: function(ev) {
             var self = this;
             var updatedArray = [];
+            var fileObj = {};
             var deleteButton = $(ev.currentTarget);
             var commentEl = deleteButton.parents('.comment').first();
             var commentJSON =  $.extend({}, this.findComment(commentEl.attr('data-id')));
@@ -737,6 +756,9 @@
                 });
                 updatedArray.splice(indexToRemove, 1);
             }
+
+            fileObj["userFileName"] = this.options.userFileName;
+            fileObj["comments"] = updatedArray;
 
             this.options.deleteComment(commentJSON, success, error);
         },
@@ -826,6 +848,10 @@
             var $this = issue.parents('.comment');
             var toggleIssue = issue.parents('#comment-list').find('> .comment');
             toggleIssue.not($this).toggle();
+            if(toggleIssue.not($this).is(":visible")) {
+                issue.parents('.comment').addClass('parent-border');
+            } else issue.parents('.comment').removeClass('parent-border');
+
             $this.find('ul.child-comments').toggle();
 
             //    show add button
@@ -846,7 +872,7 @@
 
                 // Move cursor to end
                 var textarea = replyField.find('.textarea');
-                this.moveCursorToEnd(textarea);
+                // this.moveCursorToEnd(textarea);
 
                 // Make sure the reply field will be displayed
                 var scrollTop = this.options.scrollContainer.scrollTop();
@@ -863,6 +889,7 @@
         toggleFileWrapper: function(ev) {
             var fileClicked = $(ev.currentTarget);
             fileClicked.parents('.jquery-comments').find('.data-container').toggle();
+            fileClicked.parents('.jquery-comments').find('.data-container').toggleClass('issue-wrapper');
         },
 
         childCommentClicked: function(ev) {
@@ -882,7 +909,7 @@
 
                 // Move cursor to end
                 var textarea = replyField.find('.textarea');
-                this.moveCursorToEnd(textarea);
+                // this.moveCursorToEnd(textarea);
 
                 // Make sure the reply field will be displayed
                 var scrollTop = this.options.scrollContainer.scrollTop();
@@ -913,7 +940,7 @@
             // Hide control row and close button
             var mainControlRow = mainCommentingField.find('.control-row');
             mainControlRow.hide();
-            mainCommentingField.find('.close').hide();
+            // mainCommentingField.find('.close').hide();
 
             // Comments container
             var commentsContainer = $('<div/>', {
@@ -973,13 +1000,37 @@
 
             var addComment = $('<button/>', {
                 'class': 'action reply add-comment',
-                'type': 'button',
+                'type': 'button'
+            });
+
+            var plus = $('<span/>', {
+                'class': 'plus',
                 text: '+'
             });
 
-            issueFileElement.append(fileName).append(addComment);
+            // Name element
+            var name = $('<span/>', {
+                'text': 'Fullname'
+            });
 
-            if(isMain) commentingField.addClass('main').append(issueFileElement);
+            var nameEl = $('<div/>', {
+                'class': 'name'
+            });
+
+            addComment.append(plus);
+
+            var result = true;
+            this.options.comments.map(function (comment) {
+                result = result && comment.resolved;
+            });
+
+            if(this.options.comments.length > 0 && result) {
+                addComment.addClass('green');
+            } else if(this.options.comments.length > 0 && !result) {
+                addComment.addClass('red');
+            }
+
+            issueFileElement.append(fileName).append(addComment);
 
             // Comment was modified, use existing data
             if(existingCommentId) {
@@ -1031,6 +1082,12 @@
                 'text': 'Cancel'
             });
 
+            if(isMain) {
+                nameEl.append(profilePicture).append(name);
+                textareaWrapper.append(nameEl);
+                commentingField.addClass('main').append(issueFileElement);
+            }
+
             // Save button text
             if(existingCommentId) {
                 var saveButtonText = this.options.textFormatter(this.options.saveText);
@@ -1059,7 +1116,7 @@
             // Populate the element
             controlRow.prepend(saveButton).append(closeButton);
             textareaWrapper.append(textarea).append(controlRow);
-            commentingField.append(profilePicture).append(textareaWrapper);
+            commentingField.append(textareaWrapper);
 
             return commentingField;
         },
@@ -1142,7 +1199,7 @@
             });
 
             // Highlight admin names
-            if(commentModel.createdByAdmin) nameEl.addClass('highlight-font-bold');
+            // if(commentModel.createdByAdmin) nameEl.addClass('highlight-font-bold');
 
             // Wrapper
             var wrapper = $('<div/>', {
@@ -1399,7 +1456,7 @@
             textarea = $(textarea);
             var rowCount = focus === true ? this.options.textareaRowsOnFocus : this.options.textareaRows;
             do {
-                setRows(rowCount);
+                // setRows(rowCount);
                 rowCount++;
                 var isAreaScrollable = textarea[0].scrollHeight > textarea.outerHeight();
                 var maxRowsUsed = this.options.textareaMaxRows === false ?

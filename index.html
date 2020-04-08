@@ -30,20 +30,19 @@
 
     <!-- Init jquery-comments -->
     <script type="text/javascript">
-
         $(function() {
             var saveComment = function(data) {
                 return data;
             };
 
             fileArray.forEach((el, index) => {
-                var commentContainer = $('<div/>');
+                var commentContainer = $('<li/>');
                 commentContainer.attr('id', "comments-container"+index);
                 $('.commenting').append(commentContainer);
 
                 $('#comments-container' + index).comments({
                     userFileName: el.userFileName,
-                    textareaRows: el.textareaRows,
+                    // textareaRows: el.textareaRows,
                     comments: el.comments,
                     searchUsers: function(term, success, error) {
                         setTimeout(function() {
@@ -81,6 +80,6 @@
 
 </head>
 <body>
-<div class="commenting"></div>
+<ul class="commenting"></ul>
 </body>
 </html>
